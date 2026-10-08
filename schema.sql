@@ -1,0 +1,58 @@
+CREATE DATABASE IF NOT EXISTS karyaflow;
+USE karyaflow;
+
+CREATE TABLE IF NOT EXISTS users (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    email VARCHAR(150) UNIQUE NOT NULL,
+    password_hash VARCHAR(255) NOT NULL,
+    role ENUM('FINANCE_OPERATOR', 'CFO_APPROVER', 'AUDITOR') DEFAULT 'FINANCE_OPERATOR',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS workflows (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    title VARCHAR(255) NOT NULL,
+    objective TEXT NOT NULL,
+    priority ENUM('LOW', 'MEDIUM', 'HIGH', 'CRITICAL') DEFAULT 'HIGH',
+    execution_mode ENUM('SIMULATION', 'ASSISTED', 'AUTOMATIC') DEFAULT 'ASSISTED',
+    owner VARCHAR(150) NOT NULL,
+    status ENUM('IDLE', 'RUNNING', 'WAITING_APPROVAL', 'COMPLETED', 'FAILED') DEFAULT 'RUNNING',
+    progress INT DEFAULT 20,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS workflow_steps (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    workflow_id INT NOT NULL,
+    step_order INT NOT NULL,
+    step_name VARCHAR(255) NOT NULL,
+    status ENUM('PENDING', 'RUNNING', 'WAITING_APPROVAL', 'COMPLETED', 'FAILED') DEFAULT 'PENDING',
+    requires_approval TINYINT(1) DEFAULT 0,
+    step_output TEXT NULL,
+    error_message TEXT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (workflow_id) REFERENCES workflows(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS audit_logs (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    workflow_id INT NULL,
+    action VARCHAR(100) NOT NULL,
+    details TEXT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS erp_invoices (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    invoice_id VARCHAR(50) UNIQUE NOT NULL,
+    vendor_name VARCHAR(150) NOT NULL,
+    clearing_amount DECIMAL(12,2) NOT NULL,
+    days_overdue INT DEFAULT 0,
+    reconciliation_status ENUM('CURRENT', 'OVERDUE', 'RECONCILED') DEFAULT 'OVERDUE'
+);
+
+-- Seed default user (Password: admin123)
+INSERT IGNORE INTO users (id, name, email, password_hash, role)
+VALUES (1, 'Shranya Joshi', 'shranya@karyaflow.internal', '$2y$10$eA8gHkQYcIomTkmkP5uTaeV5F1qD5X7uH9hH1q9oW7O6mE0sR3d0y', 'FINANCE_OPERATOR');

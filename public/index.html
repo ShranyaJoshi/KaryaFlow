@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KaryaFlow - Smart Invoice & Escrow Manager</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<!-- Intro Splash Screen (Blinkit / Zomato Zoom) -->
+<div id="app-splash-screen">
+    <div class="splash-aura-glow"></div>
+    <div class="splash-content text-center">
+        <div class="splash-logo-wrapper">
+            <img src="img/logo.png" alt="KaryaFlow" class="splash-logo" onerror="this.onerror=null; this.src='https://placehold.co/280x80/0b1329/38bdf8?text=KaryaFlow';">
+        </div>
+        <div class="splash-tagline mt-4">
+            <span class="pulse-dot me-2"></span> Automated Invoice & Escrow Manager
+        </div>
+    </div>
+</div>
+
+<div id="wrapper">
+
+    <!-- Left Sidebar -->
+    <div id="sidebar-wrapper">
+        <div class="sidebar-heading">
+            <img src="img/logo.png" alt="KaryaFlow" onerror="this.onerror=null; this.src='https://placehold.co/180x40/0b1329/38bdf8?text=KaryaFlow';">
+        </div>
+        <div class="list-group list-group-flush my-3">
+            <a class="list-group-item active" onclick="scrollToSec('sec-overview')">
+                <i class="bi bi-grid-1x2 me-2"></i> Dashboard Overview
+            </a>
+            <a class="list-group-item" onclick="scrollToSec('sec-workflow')">
+                <i class="bi bi-diagram-3 me-2"></i> Workflow Steps
+            </a>
+            <a class="list-group-item" onclick="scrollToSec('sec-testing')">
+                <i class="bi bi-play-circle me-2"></i> Test Triggers & Fixes
+            </a>
+            <a class="list-group-item" onclick="scrollToSec('sec-invoices')">
+                <i class="bi bi-receipt me-2"></i> Invoices & Statements
+            </a>
+            <a class="list-group-item" onclick="scrollToSec('sec-escrow')">
+                <i class="bi bi-shield-check me-2"></i> Escrow Release
+            </a>
+            <a class="list-group-item" onclick="scrollToSec('sec-emails')">
+                <i class="bi bi-envelope me-2"></i> Email Notices
+            </a>
+            <a class="list-group-item" onclick="scrollToSec('sec-history')">
+                <i class="bi bi-clock-history me-2"></i> Activity History
+            </a>
+        </div>
+        <div class="p-3 text-muted small border-top border-secondary border-opacity-25 mt-auto">
+            <span class="d-block text-white fw-bold">Blockchain Status</span>
+            <span class="badge bg-success-subtle text-success border border-success-subtle mt-1">Connected & Secured</span>
+        </div>
+    </div>
+
+    <!-- Main Viewport -->
+    <div id="page-content-wrapper">
+        <!-- Top Navbar -->
+        <nav class="navbar navbar-expand px-4 py-3 sticky-top">
+            <button class="btn btn-sm btn-outline-secondary me-3" id="menu-toggle" onclick="toggleSidebar()">
+                <i class="bi bi-list fs-5"></i>
+            </button>
+            <div class="me-auto">
+                <div class="d-flex align-items-center gap-2">
+                    <h5 class="mb-0 fw-bold">Automated Invoice Reconciliation</h5>
+                    <span id="welcome-user-banner" class="badge bg-primary-subtle text-primary border border-primary-subtle px-2 py-1 small">
+                        <i class="bi bi-person-fill-check me-1"></i> Hello, <span id="welcome-first-name">User</span>!
+                    </span>
+                </div>
+                <small class="text-muted d-none d-md-block">Detect overdue balances, secure escrow deposits, and email stakeholders automatically.</small>
+            </div>
+
+            <div class="d-flex align-items-center gap-2">
+                <!-- Language Selector -->
+                <div class="dropdown">
+                    <button class="btn btn-sm btn-outline-secondary dropdown-toggle d-flex align-items-center gap-1" type="button" data-bs-toggle="dropdown">
+                        <i class="bi bi-translate text-info"></i>
+                        <span id="current-lang-label" class="fw-semibold">EN</span>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end shadow-sm">
+                        <li><a class="dropdown-item small" href="#" onclick="changeLanguage('en')">English (EN)</a></li>
+                        <li><a class="dropdown-item small" href="#" onclick="changeLanguage('hi')">हिन्दी (HI)</a></li>
+                        <li><a class="dropdown-item small" href="#" onclick="changeLanguage('mr')">मराठी (MR)</a></li>
+                        <li><a class="dropdown-item small" href="#" onclick="changeLanguage('es')">Español (ES)</a></li>
+                    </ul>
+                </div>
+
+                <div id="auth-user-badge"></div>
+
+                <button class="btn btn-sm btn-outline-secondary" onclick="toggleTheme()" id="theme-btn" title="Toggle Theme">
+                    <i class="bi bi-sun-fill text-warning" id="theme-icon"></i>
+                </button>
+
+                <!-- Create Workflow Button (Restored) -->
+                <button class="btn btn-sm btn-primary fw-bold px-3" data-bs-toggle="modal" data-bs-target="#createWorkflowModal">
+                    <i class="bi bi-plus-circle me-1"></i> Create Workflow
+                </button>
+
+                <!-- Next Step Button -->
+                <button class="btn btn-sm btn-success fw-bold px-3" id="btn-advance-step" onclick="advanceStep()">
+                    <i class="bi bi-play-fill me-1 fs-6"></i> Run Next Step
+                </button>
+            </div>
+        </nav>
+
+        <div class="container-fluid px-4 py-4">
+
+            <!-- 1. Key Metrics Overview -->
+            <div class="row g-3 mb-4" id="sec-overview">
+                <div class="col-md-3">
+                    <div class="card p-3">
+                        <span class="text-muted small">Total Workflows Run</span>
+                        <h3 class="fw-bold mb-0 text-primary mt-1" id="kpi-total-wf">8</h3>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card p-3">
+                        <span class="text-muted small">Success Rate</span>
+                        <h3 class="fw-bold mb-0 text-success mt-1" id="kpi-success-rate">98.4%</h3>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card p-3">
+                        <span class="text-muted small">Amount Protected in Escrow</span>
+                        <h3 class="fw-bold mb-0 text-info mt-1" id="kpi-settled-vol">$142,500.00</h3>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card p-3">
+                        <span class="text-muted small">Auto-Fixed Errors</span>
+                        <h3 class="fw-bold mb-0 text-warning mt-1" id="kpi-replan-count">3</h3>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Active Process Header -->
+            <div class="card p-3 mb-4 border-start border-4 border-primary">
+                <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                    <div>
+                        <span class="badge bg-primary me-1" id="wf-mode-tag">ACTIVE PROCESS</span>
+                        <span class="badge bg-danger me-1" id="wf-priority-tag">HIGH PRIORITY</span>
+                        <span class="badge bg-secondary" id="wf-owner-tag">OWNER: finance-lead</span>
+                        <h5 class="fw-bold mt-2 mb-1" id="wf-title-display">Invoice INV-1042 Reconciliation & Escrow Release</h5>
+                        <p class="text-muted small mb-0" id="wf-obj-display">Goal: Match vendor invoice variance against company ledger, collect dual signatures, and release escrow funds.</p>
+                    </div>
+                    <div class="text-end">
+                        <span class="small text-muted d-block fw-semibold mb-1">Process Completion</span>
+                        <div class="progress" style="width: 200px; height: 12px; border-radius: 6px;">
+                            <div class="progress-bar bg-success progress-bar-striped progress-bar-animated" id="wf-progress-bar" style="width: 40%"></div>
+                        </div>
+                        <span class="small fw-bold mt-1 d-block" id="wf-progress-pct">40% Done</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2. Main Two-Column Interactive Row -->
+            <div class="row g-4 mb-4">
+                
+                <!-- Left: Pipeline Step Flow -->
+                <div class="col-lg-7" id="sec-workflow">
+                    <div class="card h-100">
+                        <div class="card-header bg-transparent py-3 d-flex justify-content-between align-items-center">
+                            <span class="fw-bold"><i class="bi bi-list-check text-primary me-2"></i>Workflow Timeline</span>
+                            <span id="wf-badge" class="badge bg-primary">RUNNING</span>
+                        </div>
+                        <div class="card-body">
+                            <!-- SVG Directed Execution Graph -->
+                            <div class="p-2 mb-3 rounded border text-center" style="background-color: var(--bg-main);">
+                                <svg id="pipeline-svg" width="100%" height="70" class="mx-auto d-block"></svg>
+                            </div>
+
+                            <!-- Interactive Steps List -->
+                            <div id="steps-container"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right: Remediation & Sandbox Testing -->
+                <div class="col-lg-5" id="sec-testing">
+                    <!-- Remediation Actions -->
+                    <div class="card mb-4 border-danger">
+                        <div class="card-header bg-danger-subtle text-danger fw-bold py-3">
+                            <i class="bi bi-tools me-2"></i>Fix Problems & Errors
+                        </div>
+                        <div class="card-body">
+                            <p class="small text-muted mb-2">If a step encounters an error or dispute, select automated remediation:</p>
+                            <div class="btn-group w-100 mb-2">
+                                <button class="btn btn-sm btn-outline-primary" onclick="remediateFailedTask('retry')">
+                                    <i class="bi bi-arrow-repeat me-1"></i> Retry
+                                </button>
+                                <button class="btn btn-sm btn-outline-warning" onclick="remediateFailedTask('replan')">
+                                    <i class="bi bi-signpost-split me-1"></i> Alternate Route
+                                </button>
+                                <button class="btn btn-sm btn-outline-secondary" onclick="remediateFailedTask('skip')">
+                                    <i class="bi bi-skip-forward me-1"></i> Skip Step
+                                </button>
+                                <button class="btn btn-sm btn-outline-danger" onclick="remediateFailedTask('escalate')">
+                                    <i class="bi bi-person-exclamation me-1"></i> Call Manager
+                                </button>
+                            </div>
+                            <small class="text-muted d-block text-center">Simulates automated self-healing recoveries.</small>
+                        </div>
+                    </div>
+
+                    <!-- Simulator Triggers -->
+                    <div class="card">
+                        <div class="card-header bg-transparent fw-bold py-3">
+                            <i class="bi bi-sliders text-info me-2"></i>Test Events (Simulate Scenarios)
+                        </div>
+                        <div class="card-body d-flex flex-column gap-2">
+                            <button class="sim-trigger-btn text-start" onclick="injectSimulationEvent('PAYMENT_RECEIVED')">
+                                <span class="d-flex align-items-center text-success fw-bold">
+                                    <i class="bi bi-check-circle-fill me-2 fs-5"></i> Scenario 1: Customer Pays
+                                </span>
+                                <small class="text-muted d-block ms-4">Instantly satisfies escrow requirements and signs releases.</small>
+                            </button>
+
+                            <button class="sim-trigger-btn text-start" onclick="injectSimulationEvent('CUSTOMER_DISPUTE')">
+                                <span class="d-flex align-items-center text-warning fw-bold">
+                                    <i class="bi bi-exclamation-triangle-fill me-2 fs-5"></i> Scenario 2: Invoice Disputed
+                                </span>
+                                <small class="text-muted d-block ms-4">Pauses payout, alerts finance team, and opens dispute branch.</small>
+                            </button>
+
+                            <button class="sim-trigger-btn text-start" onclick="injectSimulationEvent('DATA_TIMEOUT')">
+                                <span class="d-flex align-items-center text-danger fw-bold">
+                                    <i class="bi bi-x-circle-fill me-2 fs-5"></i> Scenario 3: Bank Connection Fails
+                                </span>
+                                <small class="text-muted d-block ms-4">Triggers step failure so you can test error recovery policies.</small>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- 3. ERP Statements & Invoices with CSV Upload (Restored) -->
+            <div class="card mb-4" id="sec-invoices">
+                <div class="card-header bg-transparent py-3 d-flex justify-content-between align-items-center">
+                    <span class="fw-bold"><i class="bi bi-receipt text-success me-2"></i>Uploaded Invoices & Bank Records</span>
+                    <button class="btn btn-sm btn-outline-primary" onclick="loadSampleCSV()">
+                        <i class="bi bi-arrow-repeat me-1"></i> Reload Sample Invoices
+                    </button>
+                </div>
+                <div class="card-body">
+                    <!-- Restored CSV Drag & Drop Zone -->
+                    <div class="upload-drop-zone mb-3" onclick="document.getElementById('csvFileInput').click()">
+                        <i class="bi bi-cloud-arrow-up fs-2 text-primary d-block mb-1"></i>
+                        <span class="fw-semibold small">Drag & drop your bank statement <code>.csv</code> file here, or <span class="text-primary text-decoration-underline">browse files</span></span>
+                        <small class="d-block text-muted mt-1">Accepts CSV with columns: Invoice ID, Vendor, Amount, Days Overdue</small>
+                        <input type="file" id="csvFileInput" class="d-none" accept=".csv" onchange="handleFileUpload(event)">
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0 small">
+                            <thead>
+                                <tr>
+                                    <th>Invoice #</th>
+                                    <th>Vendor Name</th>
+                                    <th>Amount</th>
+                                    <th>System Check</th>
+                                    <th>Days Unpaid</th>
+                                    <th>Status</th>
+                                    <th class="text-end">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="csv-table-body"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 4. Escrow Terminal -->
+            <div class="card mb-4" id="sec-escrow">
+                <div class="card-header bg-dark text-white py-3 d-flex justify-content-between align-items-center">
+                    <span class="fw-bold"><i class="bi bi-shield-lock text-warning me-2"></i>Escrow Digital Payment Release</span>
+                    <span id="escrow-badge" class="badge bg-secondary">AWAITING SIGNATURES</span>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label text-muted small">Invoice Being Paid</label>
+                            <input type="text" id="escrow-invoice-id" class="form-control fw-bold" value="INV-1042" readonly>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label text-muted small">Total Payout Amount</label>
+                            <input type="text" id="escrow-amount" class="form-control fw-bold text-success" value="$17,250.00" readonly>
+                        </div>
+                    </div>
+
+                    <div class="p-3 rounded border mb-3" style="background-color: var(--bg-main);">
+                        <span class="d-block small text-muted text-uppercase fw-bold mb-3 text-center">Both parties must sign before funds are disbursed</span>
+                        <div class="row text-center">
+                            <div class="col-6 border-end">
+                                <span class="d-block small text-muted">Buyer (Your Company)</span>
+                                <div id="buyer-status" class="badge bg-danger my-2"><i class="bi bi-x-circle me-1"></i>Unsigned</div>
+                                <div><button class="btn btn-sm btn-outline-primary" id="btn-sign-buyer" onclick="signParty('buyer')">Sign as Buyer</button></div>
+                            </div>
+                            <div class="col-6">
+                                <span class="d-block small text-muted">Vendor (Beneficiary)</span>
+                                <div id="vendor-status" class="badge bg-danger my-2"><i class="bi bi-x-circle me-1"></i>Unsigned</div>
+                                <div><button class="btn btn-sm btn-outline-success" id="btn-sign-vendor" onclick="signParty('vendor')">Sign as Vendor</button></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="tx-display" class="terminal-card d-none">
+                        <strong>Blockchain Confirmation Hash:</strong> <span id="tx-hash-val"></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 5. Real-Time Stakeholder Communications -->
+            <div class="card mb-4" id="sec-emails">
+                <div class="card-header bg-transparent py-3 d-flex justify-content-between align-items-center">
+                    <span class="fw-bold"><i class="bi bi-envelope-paper text-primary me-2"></i>Automated Email Notifications</span>
+                    <span class="badge bg-primary">4 Recipients Ready</span>
+                </div>
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col-md-8">
+                            <div class="border rounded p-3" style="background-color: var(--bg-main);">
+                                <div class="text-muted small mb-2 border-bottom pb-2">
+                                    <strong>Sending update to:</strong>
+                                    <span class="badge bg-secondary me-1">joshi.shranya2202@gmail.com</span>
+                                    <span class="badge bg-secondary me-1">jaisvidhianil@gmail.com</span>
+                                    <span class="badge bg-secondary me-1">shranyajoshi2006@gmail.com</span>
+                                    <span class="badge bg-secondary me-1">ritikap1807@gmail.com</span>
+                                </div>
+                                <div class="small">Subject: <strong id="email-subject">[Escrow Execution Ready] Invoice INV-1042</strong></div>
+                                <p class="small mb-0 text-muted mt-1" id="email-body">Automated dispatch: Discrepancy resolved. Hyperledger escrow awaiting dual-key execution before settlement.</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4 text-center mt-3 mt-md-0">
+                            <button class="btn btn-success w-100 py-2 fw-bold" id="btn-dispatch-email" onclick="dispatchResolutionEmail()">
+                                <i class="bi bi-send-fill me-1"></i> Send Real Email to All 4
+                            </button>
+                            <span class="small text-muted d-block mt-2" id="email-dispatch-status">Status: Ready to deliver</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 6. History / Blockchain Audit Trail -->
+            <div class="card mb-4" id="sec-history">
+                <div class="card-header bg-transparent py-3 d-flex justify-content-between align-items-center">
+                    <span class="fw-bold"><i class="bi bi-clock-history text-primary me-2"></i>Live Activity History</span>
+                    <button class="btn btn-sm btn-outline-secondary" onclick="fetchAuditLogs()">
+                        <i class="bi bi-arrow-clockwise"></i> Refresh Log
+                    </button>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive" style="max-height: 240px; overflow-y: auto;">
+                        <table class="table table-hover table-striped mb-0 small">
+                            <thead>
+                                <tr>
+                                    <th>Timestamp</th>
+                                    <th>Event Action</th>
+                                    <th>Details</th>
+                                </tr>
+                            </thead>
+                            <tbody id="audit-table-body">
+                                <tr><td colspan="3" class="text-center text-muted p-3">No activity logged yet.</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!-- Modal: Create / Synthesize Workflow (Restored) -->
+<div class="modal fade" id="createWorkflowModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header bg-primary text-white">
+        <h5 class="modal-title fw-bold"><i class="bi bi-magic me-2"></i>Create New Workflow Pipeline</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <div class="mb-3">
+            <label class="form-label small fw-bold">Select Workflow Template</label>
+            <select id="synth-template-select" class="form-select" onchange="onTemplateSelected()">
+                <option value="INVOICE_ESCROW" selected>Disputed Invoice Reconcile & Escrow Settlement</option>
+                <option value="VENDOR_ONBOARDING">Autonomous Vendor KYC & Routing Audit</option>
+                <option value="UNRECONCILED_AR">Overdue Accounts Receivable Recovery</option>
+                <option value="CUSTOM">-- Custom Goal --</option>
+            </select>
+        </div>
+        <div class="mb-3">
+            <label class="form-label small fw-bold">Workflow Title</label>
+            <input type="text" id="synth-title" class="form-control" value="Disputed Invoice Reconcile & Escrow Settlement">
+        </div>
+        <div class="mb-3">
+            <label class="form-label small fw-bold">Objective / Problem Statement</label>
+            <textarea id="synth-objective" class="form-control" rows="3">Cross-check overdue bank statement items against internal ledger, enforce dual-key escrow signing, and dispatch settlement notification to vendor.</textarea>
+        </div>
+        <div class="row g-3">
+            <div class="col-md-4">
+                <label class="form-label small fw-bold">Priority</label>
+                <select id="synth-priority" class="form-select">
+                    <option value="LOW">LOW</option>
+                    <option value="MEDIUM">MEDIUM</option>
+                    <option value="HIGH" selected>HIGH</option>
+                    <option value="CRITICAL">CRITICAL</option>
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label class="form-label small fw-bold">Execution Mode</label>
+                <select id="synth-mode" class="form-select">
+                    <option value="ASSISTED" selected>Assisted (Pause for Approvals)</option>
+                    <option value="AUTOMATIC">Automatic</option>
+                    <option value="SIMULATION">Simulation</option>
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label class="form-label small fw-bold">Process Owner</label>
+                <input type="text" id="synth-owner" class="form-control" value="finance-lead@karyaflow.internal">
+            </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-primary btn-sm fw-bold" onclick="synthesizeWorkflow()">
+            <i class="bi bi-play-circle-fill me-1"></i> Launch Pipeline
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="js/app.js"></script>
+<script src="js/escrow.js"></script>
+</body>
+</html>
