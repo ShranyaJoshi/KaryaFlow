@@ -6,10 +6,10 @@ require_once __DIR__ . '/../config/db.php';
 // ==========================================
 // 1. GMAIL SMTP CONFIGURATION
 // ==========================================
-$smtpHost = 'smtp.gmail.com';
-$smtpPort = 587;
-$smtpUser = 'karyaflowplatform@gmail.com';     // <-- Replace with your Gmail address
-$smtpPass = 'qlcp gmsd gxsk gtub';             // <-- Replace with your 16-character App Password
+$smtpHost = '';
+$smtpPort = ;
+$smtpUser = '';     // <-- Replace with your Gmail address
+$smtpPass = '';             // <-- Replace with your 16-character App Password
 // ==========================================
 
 $input = json_decode(file_get_contents('php://input'), true);
